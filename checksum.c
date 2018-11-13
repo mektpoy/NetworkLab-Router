@@ -17,8 +17,8 @@ int check_sum(unsigned short *iphd, int len, unsigned short checksum)
 	sum += (sum >> 16);
 	sum ^= (1 << 16) - 1;
 
-	if (sum == 0) return 0;
-	return -1;
+	if (sum == 0) return 1;
+	return 0;
 }
 unsigned short count_check_sum(unsigned short *iphd)
 {
