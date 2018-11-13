@@ -1,8 +1,10 @@
 #include "checksum.h"
 
-int check_sum(unsigned short *iphd, int len, unsigned short checksum)
+int check_sum(struct ip *iphead)
 {
 	unsigned int sum = 0;
+	int len = iphead->ip_len;
+	unsigned short *iphd = (unsigned short *)iphead;
 	while (len > 1) 
 	{
 		sum += *(iphd ++);
@@ -10,7 +12,7 @@ int check_sum(unsigned short *iphd, int len, unsigned short checksum)
 	}
 	if (len) 
 	{
-		sum += *(unsigned char*)iphd;
+		sum += *((unsigned char*)iphd);
 	}
 
 	sum = (sum >> 16) + (sum & (1 << 16) - 1);
@@ -20,21 +22,26 @@ int check_sum(unsigned short *iphd, int len, unsigned short checksum)
 	if (sum == 0) return 1;
 	return 0;
 }
-unsigned short count_check_sum(unsigned short *iphd)
+u_short count_check_sum(struct ip *iphead)
 {
-	*(iphd + 5) = 0; // checksum清零
-	*((unsigned char*)(iphd + 4)) --; // ttl减1
-	int len = 20;
 	unsigned int sum = 0;
+	iphead->ip_sum = 0;
+	iphead->ip_ttl --;
+	int len = iphead->ip_len;
+	unsigned short *iphd = (unsigned short *)iphead;
 	while (len > 1) 
 	{
 		sum += *(iphd ++);
 		len -= sizeof(unsigned short);
+	}
+	if (len) 
+	{
+		sum += *((unsigned char*)iphd);
 	}
 
 	sum = (sum >> 16) + (sum & (1 << 16) - 1);
 	sum += (sum >> 16);
 	sum ^= (1 << 16) - 1;
 
-	return  *(iphd + 5) = (unsigned short)sum;
+	return iphead->ip_sum = (u_short)sum;
 }

@@ -14,6 +14,7 @@
 #include<linux/if_ether.h>
 #include<arpa/inet.h>
 #include<net/route.h>
+#include<net/if.h>
  
 struct selfroute
 {
@@ -22,7 +23,7 @@ struct selfroute
      unsigned int ifindex;
      struct in_addr nexthop;
 	 unsigned int cmdnum;
-	 char ifname[10];
+	 char ifname[IF_NAMESIZE];
 }buf2;
 
 int static_route_get(struct selfroute *selfrt);

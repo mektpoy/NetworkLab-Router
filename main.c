@@ -43,11 +43,14 @@ void *thr_fn(void *arg)
 				}
 
 				{
+					insert_route(selfrt->prefix, (unsigned int)selfrt->prefixlen, 
+						selfrt->ifname, selfrt->ifindex, selfrt->nexthop.s_addr);
 					//插入到路由表里
 				}
 			}
 			else if(selfrt->cmdnum == 25)
 			{
+				delete_route(selfrt->prefix, (unsigned int)selfrt->prefixlen);
 				//从路由表里删除路由
 			}
 		}
@@ -58,7 +61,7 @@ void *thr_fn(void *arg)
 
 int main()	
 {
-	char skbuf[1500];
+	char skbuf[1520];
 	char data[1480];
 	int recvfd,datalen;
 	int recvlen;		
@@ -74,14 +77,14 @@ int main()
 	}	
 	
 	//路由表初始化
-	route_table=(struct route*)malloc(sizeof(struct route));
+	// route_table=(struct route*)malloc(sizeof(struct route));
 
-	if(route_table==NULL)
-	{
-			printf("malloc error!!\n");
-			return -1;
-	}
-	memset(route_table,0,sizeof(struct route));
+	// if(route_table==NULL)
+	// {
+	// 		printf("malloc error!!\n");
+	// 		return -1;
+	// }
+	// memset(route_table,0,sizeof(struct route));
 
 
 	{
@@ -121,14 +124,14 @@ int main()
 
 				 
 					// 校验计算模块
-					struct _iphdr *iphead;
+					struct ip *iphead;
 					int c=0;
 
-					iphead=(struct _iphdr *)malloc(sizeof(struct _iphdr));
+					iphead=(struct ip *)malloc(sizeof(struct ip));
 					
 					{
-
 					//调用校验函数check_sum，成功返回1
+					c = check_sum((unsigned short *)iphead, sizeof(struct ip));
 					}
 					if(c ==1)
 					{
@@ -140,8 +143,9 @@ int main()
 					}
 
 					{
-						
-					//调用计算校验和函数count_check_sum，返回新的校验和 
+
+					//调用计算校验和函数count_check_sum，返回新的校验和 	
+					count_check_sum((unsigned short *)iphead);
 					} 
 
 
@@ -151,6 +155,7 @@ int main()
 					memset(nexthopinfo,0,sizeof(struct nextaddr));
 					{
 						
+					lookup_route(iphead->destIP, nexthopinfo);
 					//调用查找路由函数lookup_route，获取下一跳ip地址和出接口
 					}
 

@@ -12,7 +12,7 @@ struct route
 {
     struct route *next;
     struct in_addr ip4prefix;
-	unsigned int prefixlen;
+    unsigned int prefixlen;
     struct nexthop *nexthop;
 } ;
 
@@ -20,7 +20,7 @@ struct nexthop
 {
    struct nexthop *next;
    char *ifname;
-   unsigned int ifindex;//zlw ifindex2ifname()获取出接�?   // Nexthop address 
+   unsigned int ifindex;//zlw ifindex2ifname()获取出接?   // Nexthop address 
    struct in_addr nexthopaddr;
 };
 
