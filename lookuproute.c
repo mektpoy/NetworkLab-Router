@@ -3,19 +3,19 @@
 
 // 参数1是目的前缀，参数2是掩码长度，参数3是接口名，参数4是接口索引值，参数5是下一跳ip地址
 
-bool ip_comp(unsigned long ip1, unsigned long ip2, unsigned int prefixlen) {
+bool ip_comp(uint32_t ip1, uint32_t ip2, uint32_t prefixlen) {
 	ip1 = ntohl(ip1);
 	ip2 = ntohl(ip2);
 	return (ip1 >> 32 - prefixlen) == (ip2 >> 32 - prefixlen);
 }
 
-int insert_route(unsigned long  ip4prefix, unsigned int prefixlen,
-	char *ifname, unsigned int ifindex, unsigned long nexthopaddr)
+int insert_route(uint32_t ip4prefix, uint32_t prefixlen,
+	char *ifname, uint32_t ifindex, uint32_t nexthopaddr)
 {
 	struct route *now = routeTable;
 	struct route *pre = NULL;
 	while (now != NULL) {
-		if (now->prefixlen == prefixlen && ip_comp(now->ip4prefix))
+		if (now->prefixlen == prefixlen && ip_comp(now->ip4prefix, ip4prefix, prefixlen))
 			return -1;
 		pre = now;
 		now = now->next;
@@ -24,13 +24,13 @@ int insert_route(unsigned long  ip4prefix, unsigned int prefixlen,
 	now = (struct route*) malloc(sizeof(struct route));
 	if (pre != NULL) pre->next = now;
 	now->next = NULL;
-	now->ip4prefix = in_addr{ip4prefix};
+	now->ip4prefix = in_addr{(in_addr_t)ip4prefix};
 	now->prefixlen = prefixlen;
 
 	struct nexthop *nh = (struct nexthop*) malloc(sizeof(struct nexthop));
 	nh->ifname = ifname;
 	nh->ifindex = ifindex;
-	nh->nexthopaddr = in_addr{nexthopaddr};
+	nh->nexthopaddr = in_addr{(in_addr_t)nexthopaddr};
 	now->nexthop = nh;
 	return 0;
 }
@@ -56,7 +56,7 @@ int lookup_route(struct in_addr dstaddr, struct nextaddr *nexthopinfo)
 	nexthopinfo->prefixl = ret->nexthop->ifindex;
 }
 
-int delete_route(struct in_addr dstaddr,unsigned int prefixlen)
+int delete_route(struct in_addr dstaddr, uint32_t prefixlen)
 {
 	struct route *now = routeTable;
 	struct route *pre = NULL;

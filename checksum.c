@@ -2,13 +2,13 @@
 
 int check_sum(struct ip *iphead)
 {
-	unsigned int sum = 0;
-	int len = iphead->ip_len;
-	unsigned short *iphd = (unsigned short *)iphead;
+	uint32_t sum = 0;
+	int len = iphead->ip_hl * 4;
+	uint16_t *iphd = (uint16_t *)iphead;
 	while (len > 1) 
 	{
 		sum += *(iphd ++);
-		len -= sizeof(unsigned short);
+		len -= sizeof(uint16_t);
 	}
 	if (len) 
 	{
@@ -22,17 +22,17 @@ int check_sum(struct ip *iphead)
 	if (sum == 0) return 1;
 	return 0;
 }
-u_short count_check_sum(struct ip *iphead)
+uint16_t count_check_sum(struct ip *iphead)
 {
-	unsigned int sum = 0;
+	uint32_t sum = 0;
 	iphead->ip_sum = 0;
 	iphead->ip_ttl --;
-	int len = iphead->ip_len;
-	unsigned short *iphd = (unsigned short *)iphead;
+	int len = iphead->ip_hl * 4;
+	uint16_t *iphd = (uint16_t *)iphead;
 	while (len > 1) 
 	{
 		sum += *(iphd ++);
-		len -= sizeof(unsigned short);
+		len -= sizeof(uint16_t);
 	}
 	if (len) 
 	{
@@ -43,5 +43,5 @@ u_short count_check_sum(struct ip *iphead)
 	sum += (sum >> 16);
 	sum ^= (1 << 16) - 1;
 
-	return iphead->ip_sum = (u_short)sum;
+	return iphead->ip_sum = (uint16_t)sum;
 }

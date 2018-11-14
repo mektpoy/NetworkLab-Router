@@ -21,8 +21,6 @@
 #define ETHER_HEADER_LEN sizeof(struct ether_header)
 /* 整个ip首部长度 */
 #define IP_HEADER_LEN sizeof(struct ip)
-/* 以太网 + 整个ip首部长度*/
-#define ETHER_IP_LEN ETHER_HEADER_LEN + IP_HEADER_LEN
 /* IP地址长度 */
 #define IP_ADDR_LEN 4
  

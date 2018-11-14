@@ -2,6 +2,7 @@
 #define __RECVROUTE__
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdint.h>
 #include<string.h>
 #include<unistd.h>
 #include<sys/socket.h>
@@ -20,9 +21,9 @@ struct selfroute
 {
      u_char prefixlen;
      struct in_addr prefix;
-     unsigned int ifindex;
+     uint32_t ifindex;
      struct in_addr nexthop;
-	 unsigned int cmdnum;
+	 uint32_t cmdnum;
 	 char ifname[IF_NAMESIZE];
 }buf2;
 

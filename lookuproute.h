@@ -4,15 +4,14 @@
 #include<stdlib.h>
 #include<string.h>
 #include<unistd.h>
+#include<stdint.h>
 #include <arpa/inet.h>
-
-const int route_maxn = 1010;
 
 struct route
 {
     struct route *next;
     struct in_addr ip4prefix;
-    unsigned int prefixlen;
+    uint32_t prefixlen;
     struct nexthop *nexthop;
 } ;
 
@@ -20,7 +19,7 @@ struct nexthop
 {
    struct nexthop *next;
    char *ifname;
-   unsigned int ifindex;//zlw ifindex2ifname()获取出接?   // Nexthop address 
+   uint32_t ifindex;//zlw ifindex2ifname()获取出接?   // Nexthop address 
    struct in_addr nexthopaddr;
 };
 
@@ -28,12 +27,13 @@ struct nextaddr
 {
    char *ifname;
    struct in_addr ipv4addr;
-   unsigned int prefixl;
+   uint32_t prefixl;
 };
 
 struct route *routeTable; 
-int insert_route(unsigned long  ip4prefix,unsigned int prefixlen,char *ifname,unsigned int ifindex,unsigned long  nexthopaddr);
-int lookup_route(struct in_addr dstaddr,struct nextaddr *nexthopinfo);
-int delete_route(struct in_addr dstaddr,unsigned int prefixlen);
+int insert_route(uint32_t ip4prefix, uint32_t prefixlen, char *ifname,
+  uint32_t ifindex, uint32_t nexthopaddr);
+int lookup_route(struct in_addr dstaddr, struct nextaddr *nexthopinfo);
+int delete_route(struct in_addr dstaddr, uint32_t prefixlen);
 
 #endif

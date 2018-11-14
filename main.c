@@ -6,10 +6,6 @@
 #include "recvroute.h"
 #include <pthread.h>
 
-#define IP_HEADER_LEN sizeof(struct ip)
-#define ETHER_HEADER_LEN sizeof(struct ether_header)
-
-
 //接收路由信息的线程
 void *thr_fn(void *arg)
 {
@@ -43,14 +39,14 @@ void *thr_fn(void *arg)
 				}
 
 				{
-					insert_route(selfrt->prefix, (unsigned int)selfrt->prefixlen, 
+					insert_route(selfrt->prefix, selfrt->prefixlen, 
 						selfrt->ifname, selfrt->ifindex, selfrt->nexthop.s_addr);
 					//插入到路由表里
 				}
 			}
 			else if(selfrt->cmdnum == 25)
 			{
-				delete_route(selfrt->prefix, (unsigned int)selfrt->prefixlen);
+				delete_route(selfrt->prefix, selfrt->prefixlen);
 				//从路由表里删除路由
 			}
 		}
@@ -70,7 +66,7 @@ int main()
 	ip_recvpkt = (struct ip*)malloc(sizeof(struct ip));
 
 	//创建raw socket套接字
-	if((recvfd=socket(AF_PACKET,SOCK_RAW,htons(ETH_P_IP)))==-1)	
+	if((recvfd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IP))) == -1)	
 	{
 		printf("recvfd() error\n");
 		return -1;
@@ -95,17 +91,16 @@ int main()
 
 	//创建线程去接收路由信息
 	int pd;
-	pd = pthread_create(&tid,NULL,thr_fn,NULL);
-
+	pd = pthread_create(&tid, NULL, thr_fn, NULL);
 
 	while(1)
 	{
 		//接收ip数据包模块
-		recvlen=recv(recvfd,skbuf,sizeof(skbuf),0);
-		if(recvlen>0)
+		recvlen = recv(recvfd, skbuf, sizeof(skbuf), 0);
+		if(recvlen > 0)
 		{
-		
-			ip_recvpkt = (struct ip *)(skbuf+ETHER_HEADER_LEN);
+			struct ether_header *eh = (struct ether_header *)skbuf;
+			ip_recvpkt = (struct ip *)(skbuf + sizeof(struct ether_header));
 			
 			//192.168.1.10是测试服务器的IP，现在测试服务器IP是192.168.1.10到192.168.1.80.
 			//使用不同的测试服务器要进行修改对应的IP。然后再编译。
@@ -131,7 +126,7 @@ int main()
 					
 					{
 					//调用校验函数check_sum，成功返回1
-					c = check_sum((unsigned short *)iphead, sizeof(struct ip));
+					c = check_sum(iphead);
 					}
 					if(c ==1)
 					{
@@ -145,7 +140,7 @@ int main()
 					{
 
 					//调用计算校验和函数count_check_sum，返回新的校验和 	
-					count_check_sum((unsigned short *)iphead);
+					count_check_sum(iphead);
 					} 
 
 
