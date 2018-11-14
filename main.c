@@ -5,6 +5,7 @@
 #include "sendetherip.h"
 #include "recvroute.h"
 #include <pthread.h>
+#include <net/if.h>
 
 //接收路由信息的线程
 void *thr_fn(void *arg)
@@ -28,21 +29,10 @@ void *thr_fn(void *arg)
 		{
 			if(selfrt->cmdnum == 24)
 			{
-				while(ifni->if_index != 0) {
-					if(ifni->if_index==selfrt->ifindex)
-					{
-						printf("if_name is %s\n",ifni->if_name);
-							ifname= ifni->if_name;
-						break;
-					}
-					ifni++;
-				}
-
-				{
-					insert_route(selfrt->prefix, selfrt->prefixlen, 
-						selfrt->ifname, selfrt->ifindex, selfrt->nexthop.s_addr);
-					//插入到路由表里
-				}
+				if_indextoname(selfrt->ifindex, ifname);
+				insert_route(selfrt->prefix, selfrt->prefixlen, 
+					selfrt->ifname, selfrt->ifindex, selfrt->nexthop);
+				
 			}
 			else if(selfrt->cmdnum == 25)
 			{
@@ -57,7 +47,7 @@ void *thr_fn(void *arg)
 
 int main()	
 {
-	char skbuf[1520];
+	char skbuf[1514];
 	char data[1480];
 	int recvfd,datalen;
 	int recvlen;		
@@ -71,17 +61,6 @@ int main()
 		printf("recvfd() error\n");
 		return -1;
 	}	
-	
-	//路由表初始化
-	// route_table=(struct route*)malloc(sizeof(struct route));
-
-	// if(route_table==NULL)
-	// {
-	// 		printf("malloc error!!\n");
-	// 		return -1;
-	// }
-	// memset(route_table,0,sizeof(struct route));
-
 
 	{
 		
@@ -130,7 +109,7 @@ int main()
 					printf("checksum is error !!\n");
 					return -1;
 				}
-				
+
 				//调用计算校验和函数count_check_sum，返回新的校验和 	
 				count_check_sum(iphead);
 
@@ -165,9 +144,6 @@ int main()
 				//<3>.然后再填充接收到的ip数据包剩余数据部分，然后通过raw socket发送出去
 				}
 			}
-		
-			
-
 		}
 	}
 

@@ -35,12 +35,12 @@ int insert_route(uint32_t ip4prefix, uint32_t prefixlen,
 	return 0;
 }
 
-int lookup_route(struct in_addr dstaddr, struct nexthop *nexthopinfo)
+int lookup_route(uint32_t dstaddr, struct nexthop *nexthopinfo)
 {
 	struct route *now = routeTable;
 	struct route *ret = NULL;
 	while (now != NULL) {
-		if (ip_comp(dstaddr.s_addr, now->ip4prefix.s_addr, now->prefixlen)) {
+		if (ip_comp(dstaddr, now->ip4prefix.s_addr, now->prefixlen)) {
 			if (ret == NULL || now->prefixlen > ret->prefixlen) {
 				ret = now;
 			}
@@ -49,14 +49,15 @@ int lookup_route(struct in_addr dstaddr, struct nexthop *nexthopinfo)
 	}
 	if (ret == NULL) return -1;
 	nexthopinfo = ret->nexthop;
+	return 0;
 }
 
-int delete_route(struct in_addr dstaddr, uint32_t prefixlen)
+int delete_route(uint32_t dstaddr, uint32_t prefixlen)
 {
 	struct route *now = routeTable;
 	struct route *pre = NULL;
 	while (now != NULL) {
-		if (ip_comp(dstaddr.s_addr, now->ip4prefix.s_addr, now->prefixlen)) {
+		if (ip_comp(dstaddr, now->ip4prefix.s_addr, now->prefixlen)) {
 			if (pre != NULL) {
 				pre->next = now->next;
 			} else {

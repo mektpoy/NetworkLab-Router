@@ -5,7 +5,7 @@
 #include<string.h>
 #include<unistd.h>
 #include<stdint.h>
-#include <arpa/inet.h>
+#include<arpa/inet.h>
 
 struct route
 {
@@ -25,7 +25,7 @@ struct nexthop
 struct route *routeTable; 
 int insert_route(uint32_t ip4prefix, uint32_t prefixlen, char *ifname,
   uint32_t ifindex, uint32_t nexthopaddr);
-int lookup_route(struct in_addr dstaddr, struct nexthop *nexthopinfo);
-int delete_route(struct in_addr dstaddr, uint32_t prefixlen);
+int lookup_route(uint32_t dstaddr, struct nexthop *nexthopinfo);
+int delete_route(uint32_t dstaddr, uint32_t prefixlen);
 
 #endif

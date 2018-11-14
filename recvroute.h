@@ -19,10 +19,10 @@
  
 struct selfroute
 {
-     u_char prefixlen;
-     struct in_addr prefix;
+     uint32_t prefixlen;
+     uint32_t ip4prefix;
      uint32_t ifindex;
-     struct in_addr nexthop;
+     uint32_t nexthop;
 	 uint32_t cmdnum;
 	 char ifname[IF_NAMESIZE];
 }buf2;
