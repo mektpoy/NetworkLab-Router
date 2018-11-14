@@ -17,23 +17,15 @@ struct route
 
 struct nexthop
 {
-   struct nexthop *next;
    char *ifname;
    uint32_t ifindex;//zlw ifindex2ifname()获取出接?   // Nexthop address 
    struct in_addr nexthopaddr;
 };
 
-struct nextaddr
-{
-   char *ifname;
-   struct in_addr ipv4addr;
-   uint32_t prefixl;
-};
-
 struct route *routeTable; 
 int insert_route(uint32_t ip4prefix, uint32_t prefixlen, char *ifname,
   uint32_t ifindex, uint32_t nexthopaddr);
-int lookup_route(struct in_addr dstaddr, struct nextaddr *nexthopinfo);
+int lookup_route(struct in_addr dstaddr, struct nexthop *nexthopinfo);
 int delete_route(struct in_addr dstaddr, uint32_t prefixlen);
 
 #endif

@@ -35,7 +35,7 @@ int insert_route(uint32_t ip4prefix, uint32_t prefixlen,
 	return 0;
 }
 
-int lookup_route(struct in_addr dstaddr, struct nextaddr *nexthopinfo)
+int lookup_route(struct in_addr dstaddr, struct nexthop *nexthopinfo)
 {
 	struct route *now = routeTable;
 	struct route *ret = NULL;
@@ -48,12 +48,7 @@ int lookup_route(struct in_addr dstaddr, struct nextaddr *nexthopinfo)
 		now = now->next;
 	}
 	if (ret == NULL) return -1;
-	if (nexthopinfo == NULL) {
-		nexthopinfo = (struct nextaddr*) malloc(sizeof(struct nextaddr));
-	}
-	nexthopinfo->ifname = ret->nexthop->ifname;
-	nexthopinfo->ipv4addr = ret->nexthop->nexthopaddr;
-	nexthopinfo->prefixl = ret->nexthop->ifindex;
+	nexthopinfo = ret->nexthop;
 }
 
 int delete_route(struct in_addr dstaddr, uint32_t prefixlen)

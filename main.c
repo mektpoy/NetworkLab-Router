@@ -117,62 +117,53 @@ int main()
 					data[s]=skbuf[s+34];
 				}
 
-				 
-					// 校验计算模块
-					struct ip *iphead;
-					int c=0;
+			 
+				// 校验计算模块
+				int c=0;
+				
+				//调用校验函数check_sum，成功返回1
+				c = check_sum(ip_recvpkt);
 
-					iphead=(struct ip *)malloc(sizeof(struct ip));
+				if(c == 1) {
+					printf("checksum is ok!!\n");
+				} else {
+					printf("checksum is error !!\n");
+					return -1;
+				}
+				
+				//调用计算校验和函数count_check_sum，返回新的校验和 	
+				count_check_sum(iphead);
+
+
+				//查找路由表，获取下一跳ip地址和出接口模块
+				struct nextaddr *nexthopinfo;
+				nexthopinfo = (struct nextaddr *)malloc(sizeof(struct nextaddr));
+				memset(nexthopinfo,0,sizeof(struct nextaddr));
+				{
 					
-					{
-					//调用校验函数check_sum，成功返回1
-					c = check_sum(iphead);
-					}
-					if(c ==1)
-					{
-							printf("checksum is ok!!\n");
-					}else
-					{
-							printf("checksum is error !!\n");
-							return -1;
-					}
+				lookup_route(iphead->destIP, nexthopinfo);
+				//调用查找路由函数lookup_route，获取下一跳ip地址和出接口
+				}
 
-					{
-
-					//调用计算校验和函数count_check_sum，返回新的校验和 	
-					count_check_sum(iphead);
-					} 
-
-
-					//查找路由表，获取下一跳ip地址和出接口模块
-					struct nextaddr *nexthopinfo;
-					nexthopinfo = (struct nextaddr *)malloc(sizeof(struct nextaddr));
-					memset(nexthopinfo,0,sizeof(struct nextaddr));
-					{
-						
-					lookup_route(iphead->destIP, nexthopinfo);
-					//调用查找路由函数lookup_route，获取下一跳ip地址和出接口
-					}
-
+				
+				//arp find
+				struct arpmac *srcmac;
+				srcmac = (struct arpmac*)malloc(sizeof(struct arpmac));
+				memset(srcmac,0,sizeof(struct arpmac));
+				{
 					
-					//arp find
-					struct arpmac *srcmac;
-					srcmac = (struct arpmac*)malloc(sizeof(struct arpmac));
-					memset(srcmac,0,sizeof(struct arpmac));
-					{
-						
-					//调用arpGet获取下一跳的mac地址		
-					}
+				//调用arpGet获取下一跳的mac地址		
+				}
 
-					//send ether icmp
-					{
-					//调用ip_transmit函数   填充数据包，通过原始套接字从查表得到的出接口(比如网卡2)将数据包发送出去
-					//将获取到的下一跳接口信息存储到存储接口信息的结构体ifreq里，通过ioctl获取出接口的mac地址作为数据包的源mac地址
-					//封装数据包：
-					//<1>.根据获取到的信息填充以太网数据包头，以太网包头主要需要源mac地址、目的mac地址、以太网类型eth_header->ether_type = htons(ETHERTYPE_IP);
-					//<2>.再填充ip数据包头，对其进行校验处理；
-					//<3>.然后再填充接收到的ip数据包剩余数据部分，然后通过raw socket发送出去
-					}
+				//send ether icmp
+				{
+				//调用ip_transmit函数   填充数据包，通过原始套接字从查表得到的出接口(比如网卡2)将数据包发送出去
+				//将获取到的下一跳接口信息存储到存储接口信息的结构体ifreq里，通过ioctl获取出接口的mac地址作为数据包的源mac地址
+				//封装数据包：
+				//<1>.根据获取到的信息填充以太网数据包头，以太网包头主要需要源mac地址、目的mac地址、以太网类型eth_header->ether_type = htons(ETHERTYPE_IP);
+				//<2>.再填充ip数据包头，对其进行校验处理；
+				//<3>.然后再填充接收到的ip数据包剩余数据部分，然后通过raw socket发送出去
+				}
 			}
 		
 			
