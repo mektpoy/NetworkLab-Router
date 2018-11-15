@@ -16,6 +16,6 @@ struct arpmac
 };
 
 
-int arpGet(struct arpmac *srcmac,char *ifname, char *ipStr);
+int arpGet(struct arpmac *srcmac, char *ifname, struct in_addr ip4addr);
 
 #endif 

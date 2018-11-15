@@ -118,6 +118,7 @@ int main()
 				struct nextaddr *nexthopinfo;
 				nexthopinfo = (struct nextaddr *)malloc(sizeof(struct nextaddr));
 				memset(nexthopinfo,0,sizeof(struct nextaddr));
+
 				{
 					
 				lookup_route(iphead->destIP, nexthopinfo);
@@ -131,11 +132,39 @@ int main()
 				memset(srcmac,0,sizeof(struct arpmac));
 				{
 					
-				//调用arpGet获取下一跳的mac地址		
+				arpGet(srcmac, nexthopinfo->ifname, nexthopinfo->nexthopaddr);
+				//调用arpGet获取下一跳的mac地址
 				}
 
 				//send ether icmp
 				{
+
+				struct ifreq ifr;
+				unsigned char ifmac[6];
+				int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+				strncpy(ifr.ifr_name, nexthopinfo->ifname, IF_NAMESIZE);
+				if (ioctl(sockfd, SIOCGIFHWADDR, &ifr) == 0) {
+				    memcpy(ifmac, ifr.ifr_hwaddr.sa_data, 6);
+				} else {
+				    // something really goes wrong here, doesn't it?
+				}
+				close(sockfd);
+
+				int sendfd = socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
+				struct sockaddr_ll sadr_ll;
+				sadr_ll.sll_ifindex = 0; // index of next hop
+				sadr_ll.sll_halen = ETH_ALEN;
+				// mac_addr_to is the result of arp query
+				memcpy(sadr_ll.sll_addr, mac_addr_to, ETH_ALEN);
+				// length should be equal to the length you receive from raw socket
+				if ((result = sendto(sendfd, skbuf, length, 0,
+                 (const struct sockaddr *)&sadr_ll, sizeof(struct sockaddr_ll))) == -1) {
+                 	// error
+				} else {
+					// secceed
+				}
+				close(sendfd);
+ 
 				//调用ip_transmit函数   填充数据包，通过原始套接字从查表得到的出接口(比如网卡2)将数据包发送出去
 				//将获取到的下一跳接口信息存储到存储接口信息的结构体ifreq里，通过ioctl获取出接口的mac地址作为数据包的源mac地址
 				//封装数据包：
