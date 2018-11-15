@@ -27,5 +27,4 @@ struct selfroute
 	 char ifname[IF_NAMESIZE];
 }buf2;
 
-int static_route_get(struct selfroute *selfrt);
 #endif
